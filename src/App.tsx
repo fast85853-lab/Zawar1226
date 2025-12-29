@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import PropertyCard from './components/PropertyCard';
 import PostForm from './components/PostForm';
-import { Property, ViewType, PropertyType, HouseStyle } from './types';
+import { Property, ViewType, PropertyType, HouseStyle } from '../types';
 import { Search, Plus, Building2, ShieldCheck, Info, SlidersHorizontal, Settings, XCircle } from 'lucide-react';
 
 const App: React.FC = () => {
