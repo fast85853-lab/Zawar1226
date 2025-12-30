@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import Layout from './components/Layout';
-import PropertyCard from './components/PropertyCard';
-import PostForm from './components/PostForm';
-import { Property, ViewType, PropertyType, HouseStyle } from '../types';
+import Layout from './components/Layout.tsx';
+import PropertyCard from './components/PropertyCard.tsx';
+import PostForm from './components/PostForm.tsx';
+import { Property, ViewType, PropertyType, HouseStyle } from './types.ts';
 import { Search, Plus, Building2, ShieldCheck, Info, SlidersHorizontal, Settings, XCircle } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -11,44 +11,52 @@ const App: React.FC = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [editingProperty, setEditingProperty] = useState<Property | undefined>(undefined);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Persistence
+  // Persistence with error handling
   useEffect(() => {
-    const saved = localStorage.getItem('global_properties');
-    if (saved) {
-      setProperties(JSON.parse(saved));
-    } else {
-      // Mock initial data if empty
-      const mock: Property[] = [
-        {
-          id: '1',
-          title: 'Modern Apartment near Blue Area',
-          type: PropertyType.RENT,
-          country: 'Pakistan',
-          city: 'Islamabad',
-          area: 'Sector F-6',
-          style: HouseStyle.DOUBLE_STORY,
-          bedrooms: 3,
-          bathrooms: 3,
-          hasGas: true,
-          hasElectricity: true,
-          phoneNumber: '03001234567',
-          whatsappNumber: '923001234567',
-          images: [],
-          price: '85,000',
-          currency: 'PKR',
-          language: 'Urdu/English',
-          description: 'Luxurious double story apartment located in the prime sector of Islamabad.',
-          createdAt: Date.now()
-        }
-      ];
-      setProperties(mock);
+    try {
+      const saved = localStorage.getItem('global_properties');
+      if (saved) {
+        setProperties(JSON.parse(saved));
+      } else {
+        const mock: Property[] = [
+          {
+            id: '1',
+            title: 'Modern Apartment near Blue Area',
+            type: PropertyType.RENT,
+            country: 'Pakistan',
+            city: 'Islamabad',
+            area: 'Sector F-6',
+            style: HouseStyle.DOUBLE_STORY,
+            bedrooms: 3,
+            bathrooms: 3,
+            hasGas: true,
+            hasElectricity: true,
+            phoneNumber: '03001234567',
+            whatsappNumber: '923001234567',
+            images: [],
+            price: '85,000',
+            currency: 'PKR',
+            language: 'Urdu/English',
+            description: 'Luxurious double story apartment located in the prime sector of Islamabad.',
+            createdAt: Date.now()
+          }
+        ];
+        setProperties(mock);
+      }
+    } catch (e) {
+      console.error("Failed to load properties:", e);
+    } finally {
+      setIsLoaded(true);
     }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('global_properties', JSON.stringify(properties));
-  }, [properties]);
+    if (isLoaded) {
+      localStorage.setItem('global_properties', JSON.stringify(properties));
+    }
+  }, [properties, isLoaded]);
 
   const handleSaveProperty = (prop: Property) => {
     if (editingProperty) {
@@ -86,6 +94,8 @@ const App: React.FC = () => {
   );
 
   const renderView = () => {
+    if (!isLoaded) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+
     switch (currentView) {
       case 'home':
         return (
@@ -121,7 +131,6 @@ const App: React.FC = () => {
               <Building2 className="absolute right-[-40px] bottom-[-40px] w-96 h-96 text-white/5 rotate-12" />
             </div>
 
-            {/* List Header */}
             <div className="flex justify-between items-end px-2">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">Featured Properties</h2>
@@ -132,7 +141,6 @@ const App: React.FC = () => {
               </button>
             </div>
 
-            {/* Property Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredProperties.map(p => (
                 <PropertyCard key={p.id} property={p} viewMode="home" />
@@ -154,7 +162,6 @@ const App: React.FC = () => {
               )}
             </div>
 
-            {/* Floating Action Button */}
             <button 
               onClick={navigateToPost}
               className="fixed bottom-8 right-8 md:hidden bg-blue-600 text-white p-5 rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:scale-110 active:scale-95 transition-all z-50 flex items-center gap-2"
@@ -232,12 +239,6 @@ const App: React.FC = () => {
                     <div className="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow-md" />
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-3xl group hover:bg-blue-50 transition-colors">
-                  <span className="font-bold text-gray-700">Profile Visibility</span>
-                  <div className="w-14 h-8 bg-blue-600 rounded-full relative shadow-inner">
-                    <div className="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow-md" />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -250,15 +251,7 @@ const App: React.FC = () => {
               <ShieldCheck className="w-20 h-20 text-green-500 mb-6" />
               <h1 className="text-4xl font-black mb-8 text-gray-900">Privacy & Security</h1>
               <div className="prose prose-lg text-gray-600 space-y-6">
-                <p className="font-medium leading-relaxed">Your privacy is our number one priority. We use advanced encryption to protect your data and contact numbers.</p>
-                <div className="bg-blue-50 p-6 rounded-3xl">
-                  <h3 className="text-xl font-bold text-blue-900 mb-3">Key Terms:</h3>
-                  <ul className="list-disc ml-5 space-y-2 text-blue-800">
-                    <li>Contact details only visible to potential leads.</li>
-                    <li>Listing location is approximate for security.</li>
-                    <li>End-to-end encryption for AI descriptions.</li>
-                  </ul>
-                </div>
+                <p>Your privacy is our priority. We use encryption to protect your data.</p>
               </div>
             </div>
           </div>
@@ -268,26 +261,9 @@ const App: React.FC = () => {
         return (
           <div className="max-w-4xl mx-auto p-8 mt-12">
             <div className="bg-white rounded-[3rem] p-12 shadow-sm border border-gray-50 text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
               <Info className="w-20 h-20 text-blue-500 mx-auto mb-6" />
               <h1 className="text-4xl font-black mb-6">About GlobalHome</h1>
-              <p className="text-xl text-gray-600 leading-relaxed mb-12 max-w-2xl mx-auto">
-                We are building the future of real estate. A truly borderless marketplace where anyone can buy, sell, or rent property anywhere in the world with absolute confidence and speed.
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] hover:scale-105 transition-transform">
-                  <h4 className="font-black text-3xl text-blue-600 mb-1">300+</h4>
-                  <p className="font-bold text-gray-500 uppercase tracking-tighter">Countries</p>
-                </div>
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] hover:scale-105 transition-transform">
-                  <h4 className="font-black text-3xl text-blue-600 mb-1">Instant</h4>
-                  <p className="font-bold text-gray-500 uppercase tracking-tighter">Connectivity</p>
-                </div>
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] hover:scale-105 transition-transform">
-                  <h4 className="font-black text-3xl text-blue-600 mb-1">Zero</h4>
-                  <p className="font-bold text-gray-500 uppercase tracking-tighter">Hidden Fees</p>
-                </div>
-              </div>
+              <p className="text-xl text-gray-600 mb-12">Building the future of global real estate.</p>
             </div>
           </div>
         );
