@@ -1,0 +1,22 @@
+
+{
+  "name": "Find Home",
+  "short_name": "FindHome",
+  "description": "Find home, rooms and apartments easily",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6a1b9a",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/619/619153.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/619/619153.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
