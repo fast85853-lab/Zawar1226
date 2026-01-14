@@ -10,9 +10,10 @@ import {
   Menu, 
   X,
   Globe,
-  LogOut
+  LogOut,
+  Mail
 } from 'lucide-react';
-import { ViewType } from '../types';
+import { ViewType } from '../types.ts';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -27,6 +28,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
     { id: 'home', label: 'Home Feed', icon: Home },
     { id: 'profile', label: 'My Listings', icon: User },
     { id: 'post', label: 'Post Property', icon: PlusCircle },
+    { id: 'contact', label: 'Contact Us', icon: Mail },
     { id: 'settings', label: 'Settings', icon: Settings },
     { id: 'privacy', label: 'Privacy Policy', icon: ShieldCheck },
     { id: 'about', label: 'About Us', icon: Info },
@@ -35,15 +37,16 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
   const handleNav = (id: ViewType) => {
     setView(id);
     setIsOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row overflow-x-hidden">
       {/* Mobile Header */}
       <header className="md:hidden bg-blue-600 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
         <div className="flex items-center gap-2">
           <Globe className="w-6 h-6" />
-          <h1 className="text-xl font-bold tracking-tight">GlobalHome</h1>
+          <h1 className="text-xl font-bold tracking-tight">Find home</h1>
         </div>
         <button onClick={() => setIsOpen(!isOpen)} className="p-1">
           {isOpen ? <X /> : <Menu />}
@@ -58,7 +61,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
       `}>
         <div className="hidden md:flex items-center gap-2 p-6 border-b bg-blue-50">
           <Globe className="w-8 h-8 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-800">GlobalHome</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Find home</h1>
         </div>
 
         <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
@@ -96,7 +99,7 @@ const Layout: React.FC<LayoutProps> = ({ children, currentView, setView }) => {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 bg-gray-50 overflow-y-auto h-screen pb-20 md:pb-0">
+      <main className="flex-1 min-w-0 bg-gray-50 overflow-y-auto h-screen pb-20 md:pb-0 scroll-smooth">
         {children}
       </main>
     </div>

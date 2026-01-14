@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout.tsx';
 import PropertyCard from './components/PropertyCard.tsx';
 import PostForm from './components/PostForm.tsx';
-import { Property, ViewType, PropertyType, HouseStyle } from './types.ts';
-import { Search, Plus, Building2, ShieldCheck, Info, SlidersHorizontal, Settings, XCircle } from 'lucide-react';
+import { Property, ViewType, PropertyType, HouseStyle, PropertyCategory } from './types.ts';
+import { Search, Plus, Building2, ShieldCheck, Info, SlidersHorizontal, Settings as SettingsIcon, XCircle, Mail, MapPin, Globe, Bell, Fingerprint, Eye } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<ViewType>('home');
@@ -13,7 +13,13 @@ const App: React.FC = () => {
   const [editingProperty, setEditingProperty] = useState<Property | undefined>(undefined);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Persistence with error handling
+  // Settings state
+  const [settings, setSettings] = useState({
+    notifications: true,
+    privacy: true,
+    autoCurrency: true
+  });
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem('global_properties');
@@ -23,30 +29,31 @@ const App: React.FC = () => {
         const mock: Property[] = [
           {
             id: '1',
-            title: 'Modern Apartment near Blue Area',
+            title: 'Executive Villa in Prime Location',
             type: PropertyType.RENT,
+            category: PropertyCategory.VILLA,
             country: 'Pakistan',
             city: 'Islamabad',
             area: 'Sector F-6',
             style: HouseStyle.DOUBLE_STORY,
-            bedrooms: 3,
-            bathrooms: 3,
+            bedrooms: 4,
+            bathrooms: 4,
             hasGas: true,
             hasElectricity: true,
             phoneNumber: '03001234567',
             whatsappNumber: '923001234567',
             images: [],
-            price: '85,000',
+            price: '150,000',
             currency: 'PKR',
             language: 'Urdu/English',
-            description: 'Luxurious double story apartment located in the prime sector of Islamabad.',
+            description: 'A beautiful modern villa with scenic views and top-tier security.',
             createdAt: Date.now()
           }
         ];
         setProperties(mock);
       }
     } catch (e) {
-      console.error("Failed to load properties:", e);
+      console.error("Storage Load Error:", e);
     } finally {
       setIsLoaded(true);
     }
@@ -54,159 +61,76 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem('global_properties', JSON.stringify(properties));
+      try {
+        localStorage.setItem('global_properties', JSON.stringify(properties));
+      } catch (e) {
+        console.error("Storage Save Error (Quota full?):", e);
+      }
     }
   }, [properties, isLoaded]);
 
   const handleSaveProperty = (prop: Property) => {
-    if (editingProperty) {
-      setProperties(prev => prev.map(p => p.id === prop.id ? prop : p));
-    } else {
-      setProperties(prev => [prop, ...prev]);
-    }
+    console.log("Saving property to main state:", prop);
+    setProperties(prev => {
+      const exists = prev.some(p => p.id === prop.id);
+      if (exists) {
+        return prev.map(p => p.id === prop.id ? prop : p);
+      }
+      return [prop, ...prev];
+    });
     setEditingProperty(undefined);
     setCurrentView('home');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const handleDelete = (id: string) => {
-    if (window.confirm('Are you sure you want to delete this listing permanently?')) {
-      setProperties(prev => prev.filter(p => p.id !== id));
-    }
-  };
-
-  const handleEdit = (id: string) => {
-    const prop = properties.find(p => p.id === id);
-    if (prop) {
-      setEditingProperty(prop);
-      setCurrentView('post');
-    }
-  };
-
-  const navigateToPost = () => {
-    setEditingProperty(undefined);
-    setCurrentView('post');
-  };
-
-  const filteredProperties = properties.filter(p => 
-    p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.area.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const renderView = () => {
-    if (!isLoaded) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    if (!isLoaded) return <div className="flex h-screen items-center justify-center font-black text-blue-600 animate-pulse text-2xl uppercase tracking-widest">Find home</div>;
 
     switch (currentView) {
       case 'home':
         return (
-          <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
-            {/* Hero Section */}
-            <div className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
-              <div className="relative z-10 max-w-2xl">
-                <span className="bg-white/20 backdrop-blur-sm px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4 inline-block">Global Real Estate Market</span>
-                <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">Your Dream Home <br/><span className="text-blue-300">Awaits You.</span></h1>
-                <p className="text-blue-100 mb-10 text-lg opacity-90">Find, Buy, Sell or Rent properties across 300+ countries with one tap.</p>
+          <div className="p-4 md:p-8 space-y-12 max-w-7xl mx-auto scroll-smooth">
+            <div className="bg-gradient-to-br from-blue-700 to-indigo-900 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden shadow-2xl">
+              <div className="relative z-10 max-w-3xl">
+                <span className="bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full text-xs font-black uppercase tracking-[0.2em] mb-6 inline-block">Real Estate Platform</span>
                 
-                <div className="flex flex-col md:flex-row gap-3 bg-white/10 backdrop-blur-xl p-3 rounded-3xl border border-white/20">
-                  <div className="flex-1 flex items-center bg-white rounded-2xl px-5 py-4 shadow-inner">
-                    <Search className="text-blue-600 w-6 h-6 mr-3" />
+                {/* Updated Hero Heading */}
+                <h1 className="text-6xl md:text-8xl font-black mb-4 leading-none tracking-tighter">
+                  FIND YOUR <br/><span className="text-blue-300">NEXT HOME</span>
+                </h1>
+                <p className="text-lg md:text-xl font-medium text-blue-100/80 mb-10 max-w-xl">
+                  Search across thousands of verified listings to find your perfect match today.
+                </p>
+                
+                <div className="flex flex-col md:flex-row gap-4 bg-white/10 backdrop-blur-xl p-4 rounded-[2rem] border border-white/20 shadow-2xl">
+                  <div className="flex-1 flex items-center bg-white rounded-2xl px-6 py-5 shadow-inner">
+                    <Search className="text-blue-600 w-7 h-7 mr-4" />
                     <input 
                       type="text" 
-                      placeholder="Search city, area or title..." 
-                      className="bg-transparent text-gray-800 outline-none w-full font-medium placeholder:text-gray-400"
+                      placeholder="Search city, area, category or title..." 
+                      className="bg-transparent text-gray-800 outline-none w-full font-bold text-lg"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
-                    {searchQuery && (
-                        <button onClick={() => setSearchQuery('')} className="text-gray-400 hover:text-red-500">
-                            <XCircle className="w-5 h-5" />
-                        </button>
-                    )}
                   </div>
-                  <button className="bg-blue-500 hover:bg-blue-400 text-white px-10 py-4 rounded-2xl font-bold transition-all shadow-xl active:scale-95">
-                    Search Now
-                  </button>
+                  <button className="bg-blue-500 text-white px-12 py-5 rounded-2xl font-black shadow-xl hover:bg-blue-400 active:scale-95 transition-all text-lg">Find Now</button>
                 </div>
               </div>
-              <Building2 className="absolute right-[-40px] bottom-[-40px] w-96 h-96 text-white/5 rotate-12" />
+              <Building2 className="absolute right-[-60px] bottom-[-60px] w-[500px] h-[500px] text-white/5 rotate-12 pointer-events-none" />
             </div>
 
-            <div className="flex justify-between items-end px-2">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">Featured Properties</h2>
-                <p className="text-gray-500 font-medium">Verified listings for your consideration</p>
-              </div>
-              <button className="flex items-center gap-2 text-gray-600 font-bold px-5 py-3 border-2 border-gray-100 rounded-2xl hover:bg-white hover:border-blue-100 transition-all shadow-sm">
-                <SlidersHorizontal className="w-5 h-5" /> Filters
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {filteredProperties.map(p => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
+              {properties.filter(p => 
+                p.city.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                p.area.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                p.title.toLowerCase().includes(searchQuery.toLowerCase())
+              ).map(p => (
                 <PropertyCard key={p.id} property={p} viewMode="home" />
               ))}
-              {filteredProperties.length === 0 && (
-                <div className="col-span-full py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-100">
-                  <div className="bg-gray-50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Search className="w-12 h-12 text-gray-300" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-800">No properties found</h3>
-                  <p className="text-gray-500 mb-8">Try adjusting your search terms or area.</p>
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold hover:bg-blue-700 transition-all"
-                  >
-                    Clear Search
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button 
-              onClick={navigateToPost}
-              className="fixed bottom-8 right-8 md:hidden bg-blue-600 text-white p-5 rounded-[2rem] shadow-[0_20px_50px_rgba(37,99,235,0.4)] hover:scale-110 active:scale-95 transition-all z-50 flex items-center gap-2"
-            >
-              <Plus className="w-6 h-6" /> <span className="font-bold">Post</span>
-            </button>
-          </div>
-        );
-
-      case 'profile':
-        return (
-          <div className="p-4 md:p-8 max-w-7xl mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-              <div>
-                <h1 className="text-4xl font-black text-gray-900">My Listings</h1>
-                <p className="text-gray-500 font-medium text-lg">Manage and edit your property portfolio</p>
-              </div>
-              <button 
-                onClick={navigateToPost}
-                className="flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-[1.5rem] font-bold shadow-xl hover:bg-blue-700 transition-all transform hover:-translate-y-1"
-              >
-                <Plus className="w-6 h-6" /> Add New Listing
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {properties.map(p => (
-                <PropertyCard 
-                  key={p.id} 
-                  property={p} 
-                  viewMode="profile" 
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                />
-              ))}
               {properties.length === 0 && (
-                <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-200">
-                  <h3 className="text-2xl font-bold text-gray-400 mb-4">You have zero listings</h3>
-                  <p className="text-gray-400 mb-8 max-w-sm mx-auto">Start listing your properties for rent or sale and reach a global audience.</p>
-                  <button 
-                    onClick={navigateToPost}
-                    className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all"
-                  >
-                    Post Your First Ad
-                  </button>
+                <div className="col-span-full py-20 text-center">
+                  <p className="text-gray-400 text-xl font-bold">No properties listed yet.</p>
                 </div>
               )}
             </div>
@@ -214,44 +138,65 @@ const App: React.FC = () => {
         );
 
       case 'post':
-        return (
-          <PostForm 
-            onSave={handleSaveProperty} 
-            onCancel={() => {
-              setEditingProperty(undefined);
-              setCurrentView('home');
-            }} 
-            editingProperty={editingProperty}
-          />
-        );
+        return <PostForm onSave={handleSaveProperty} onCancel={() => { setEditingProperty(undefined); setCurrentView('home'); }} editingProperty={editingProperty} />;
 
-      case 'settings':
+      case 'profile':
         return (
-          <div className="max-w-2xl mx-auto p-8 text-center mt-12">
-            <div className="bg-white rounded-[3rem] p-12 shadow-sm border border-gray-50">
-              <Settings className="w-20 h-20 text-blue-600 mx-auto mb-6" />
-              <h1 className="text-4xl font-black mb-4">Settings</h1>
-              <p className="text-gray-500 mb-10">Manage your preferences and privacy</p>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-3xl group hover:bg-blue-50 transition-colors">
-                  <span className="font-bold text-gray-700">Push Notifications</span>
-                  <div className="w-14 h-8 bg-green-500 rounded-full relative shadow-inner">
-                    <div className="absolute right-1 top-1 w-6 h-6 bg-white rounded-full shadow-md" />
-                  </div>
+          <div className="p-4 md:p-8 max-w-7xl mx-auto">
+            <div className="flex justify-between items-center mb-10">
+              <h1 className="text-4xl font-black text-gray-900">My Listings</h1>
+              <button onClick={() => setCurrentView('post')} className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:bg-blue-700 transition-all"><Plus /> Add Listing</button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+              {properties.map(p => (
+                <PropertyCard key={p.id} property={p} viewMode="profile" onEdit={(id) => { setEditingProperty(properties.find(x => x.id === id)); setCurrentView('post'); }} onDelete={(id) => { if(window.confirm('Delete this listing?')) setProperties(prev => prev.filter(x => x.id !== id)) }} />
+              ))}
+              {properties.length === 0 && (
+                <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border-4 border-dashed border-gray-100">
+                  <p className="text-gray-400 font-bold text-xl mb-4">No listings yet.</p>
+                  <button onClick={() => setCurrentView('post')} className="text-blue-600 font-black underline">Post your first home</button>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         );
 
-      case 'privacy':
+      case 'settings':
         return (
-          <div className="max-w-3xl mx-auto p-8 mt-12">
-            <div className="bg-white rounded-[3rem] p-12 shadow-sm border border-gray-50">
-              <ShieldCheck className="w-20 h-20 text-green-500 mb-6" />
-              <h1 className="text-4xl font-black mb-8 text-gray-900">Privacy & Security</h1>
-              <div className="prose prose-lg text-gray-600 space-y-6">
-                <p>Your privacy is our priority. We use encryption to protect your data.</p>
+          <div className="max-w-2xl mx-auto p-8 mt-12">
+            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100">
+              <div className="flex items-center gap-4 mb-10">
+                <SettingsIcon className="w-10 h-10 text-blue-600" />
+                <h1 className="text-4xl font-black">App Settings</h1>
+              </div>
+              <div className="space-y-8">
+                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem]">
+                  <div className="flex items-center gap-4">
+                    <Bell className="text-blue-500" />
+                    <span className="font-bold text-lg text-gray-800">Push Notifications</span>
+                  </div>
+                  <button onClick={() => setSettings(s => ({...s, notifications: !s.notifications}))} className={`w-16 h-8 rounded-full relative transition-colors ${settings.notifications ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${settings.notifications ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem]">
+                  <div className="flex items-center gap-4">
+                    <Fingerprint className="text-purple-500" />
+                    <span className="font-bold text-lg text-gray-800">Privacy Mode</span>
+                  </div>
+                  <button onClick={() => setSettings(s => ({...s, privacy: !s.privacy}))} className={`w-16 h-8 rounded-full relative transition-colors ${settings.privacy ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${settings.privacy ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between p-6 bg-gray-50 rounded-[2rem]">
+                  <div className="flex items-center gap-4">
+                    <Globe className="text-orange-500" />
+                    <span className="font-bold text-lg text-gray-800">Auto Currency Sync</span>
+                  </div>
+                  <button onClick={() => setSettings(s => ({...s, autoCurrency: !s.autoCurrency}))} className={`w-16 h-8 rounded-full relative transition-colors ${settings.autoCurrency ? 'bg-green-500' : 'bg-gray-300'}`}>
+                    <div className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all ${settings.autoCurrency ? 'right-1' : 'left-1'}`} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -259,23 +204,99 @@ const App: React.FC = () => {
 
       case 'about':
         return (
-          <div className="max-w-4xl mx-auto p-8 mt-12">
-            <div className="bg-white rounded-[3rem] p-12 shadow-sm border border-gray-50 text-center relative overflow-hidden">
-              <Info className="w-20 h-20 text-blue-500 mx-auto mb-6" />
-              <h1 className="text-4xl font-black mb-6">About GlobalHome</h1>
-              <p className="text-xl text-gray-600 mb-12">Building the future of global real estate.</p>
+          <div className="max-w-4xl mx-auto p-8 mt-12 animate-in fade-in duration-500">
+            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 text-center relative overflow-hidden">
+              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Globe className="w-12 h-12 text-blue-600" />
+              </div>
+              <h1 className="text-5xl font-black mb-6">Our Mission</h1>
+              <p className="text-xl text-gray-500 mb-10 leading-relaxed max-w-2xl mx-auto">
+                Find home is a premium platform designed to make finding homes as easy as a single tap. 
+                Whether you're looking for a luxury villa in Islamabad or a modern flat in London, we bridge the gap between dream and reality.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <div className="p-6 bg-blue-50 rounded-3xl">
+                  <h3 className="font-black text-blue-900 mb-2">Verified Ads</h3>
+                  <p className="text-sm text-blue-700">Every property on our platform is manually reviewed to ensure trust.</p>
+                </div>
+                <div className="p-6 bg-green-50 rounded-3xl">
+                  <h3 className="font-black text-green-900 mb-2">Smart Sync</h3>
+                  <p className="text-sm text-green-700">Currency and language are automatically synced for international buyers.</p>
+                </div>
+                <div className="p-6 bg-orange-50 rounded-3xl">
+                  <h3 className="font-black text-orange-900 mb-2">WhatsApp Ready</h3>
+                  <p className="text-sm text-orange-700">Directly contact sellers via WhatsApp for lightning-fast deals.</p>
+                </div>
+              </div>
+              <p className="mt-12 text-gray-400 font-bold uppercase tracking-widest text-xs">ESTABLISHED 2024 • ISLAMABAD, PAKISTAN</p>
+            </div>
+          </div>
+        );
+
+      case 'privacy':
+        return (
+          <div className="max-w-3xl mx-auto p-8 mt-12">
+            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100">
+              <ShieldCheck className="w-20 h-20 text-green-500 mb-6" />
+              <h1 className="text-4xl font-black mb-8 text-gray-900">Privacy & Data Security</h1>
+              <div className="prose prose-lg text-gray-600 space-y-8 font-medium">
+                <div className="flex gap-4">
+                  <Eye className="w-10 h-10 text-blue-500 shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">Data Visibility</h3>
+                    <p className="text-sm">We only show your contact information to verified users. Your phone number is encrypted and protected against scrapers.</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <ShieldCheck className="w-10 h-10 text-green-500 shrink-0" />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">Secure Images</h3>
+                    <p className="text-sm">Uploaded images are stored on high-speed servers and optimized for mobile viewing without compromising quality.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'contact':
+        return (
+          <div className="max-w-2xl mx-auto p-8 mt-12">
+            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 text-center">
+              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Mail className="w-12 h-12 text-blue-600" />
+              </div>
+              <h1 className="text-4xl font-black mb-4">Support Center</h1>
+              <p className="text-gray-500 mb-10 text-lg">We typically respond within 1-2 hours.</p>
+              
+              <div className="space-y-6">
+                <a href="mailto:fast85853@gmail.com" className="p-8 bg-gray-50 rounded-[2.5rem] border-2 border-transparent hover:border-blue-500 flex items-center gap-6 transition-all group">
+                  <div className="bg-white p-5 rounded-2xl shadow-sm group-hover:bg-blue-600 transition-colors"><Mail className="w-8 h-8 text-blue-600 group-hover:text-white" /></div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Official Email</p>
+                    <p className="text-2xl font-black text-blue-600">fast85853@gmail.com</p>
+                  </div>
+                </a>
+                <div className="p-8 bg-gray-50 rounded-[2.5rem] flex items-center gap-6">
+                  <div className="bg-white p-5 rounded-2xl shadow-sm"><MapPin className="w-8 h-8 text-red-500" /></div>
+                  <div className="text-left">
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Office Location</p>
+                    <p className="text-xl font-black text-gray-800">Islamabad, Pakistan</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
 
       default:
-        return <div className="p-20 text-center text-gray-400">View Not Found</div>;
+        return <div className="p-20 text-center font-black text-red-500">SYSTEM ERROR: VIEW NOT MAPPED</div>;
     }
   };
 
   return (
     <Layout currentView={currentView} setView={setCurrentView}>
-      <div className="pb-24">
+      <div className="pb-24 overflow-x-hidden">
         {renderView()}
       </div>
     </Layout>

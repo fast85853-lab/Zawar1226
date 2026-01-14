@@ -9,10 +9,18 @@ export enum HouseStyle {
   DOUBLE_STORY = 'Double Story'
 }
 
+export enum PropertyCategory {
+  HOUSE = 'House',
+  SHOP = 'Shop',
+  VILLA = 'Villa',
+  APARTMENT = 'Apartment'
+}
+
 export interface Property {
   id: string;
   title: string;
   type: PropertyType;
+  category: PropertyCategory;
   country: string;
   city: string;
   area: string;
@@ -23,7 +31,7 @@ export interface Property {
   hasElectricity: boolean;
   phoneNumber: string;
   whatsappNumber: string;
-  images: string[]; // Kept in interface for compatibility, but UI will hide upload
+  images: string[]; 
   price: string;
   currency: string;
   language: string;
@@ -31,4 +39,4 @@ export interface Property {
   createdAt: number;
 }
 
-export type ViewType = 'home' | 'post' | 'profile' | 'settings' | 'privacy' | 'about';
+export type ViewType = 'home' | 'post' | 'profile' | 'settings' | 'privacy' | 'about' | 'contact';

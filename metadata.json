@@ -1,5 +1,5 @@
 {
-  "name": "Global Real Estate Connect",
+  "name": "Find home",
   "description": "A comprehensive global platform for buying, selling, and renting properties with advanced search, WhatsApp integration, and AI-powered descriptions.",
   "requestFramePermissions": [
     "geolocation"
