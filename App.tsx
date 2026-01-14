@@ -261,27 +261,31 @@ const App: React.FC = () => {
 
       case 'contact':
         return (
-          <div className="max-w-2xl mx-auto p-8 mt-12">
-            <div className="bg-white rounded-[3rem] p-12 shadow-2xl border border-gray-100 text-center">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
-                <Mail className="w-12 h-12 text-blue-600" />
+          <div className="max-w-2xl mx-auto p-4 md:p-8 mt-12">
+            <div className="bg-white rounded-[2.5rem] md:rounded-[3rem] p-6 md:p-12 shadow-2xl border border-gray-100 text-center">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-8">
+                <Mail className="w-10 h-10 md:w-12 md:h-12 text-blue-600" />
               </div>
-              <h1 className="text-4xl font-black mb-4">Support Center</h1>
-              <p className="text-gray-500 mb-10 text-lg">We typically respond within 1-2 hours.</p>
+              <h1 className="text-3xl md:text-4xl font-black mb-4">Support Center</h1>
+              <p className="text-gray-500 mb-10 text-base md:text-lg">We typically respond within 1-2 hours.</p>
               
               <div className="space-y-6">
-                <a href="mailto:fast85853@gmail.com" className="p-8 bg-gray-50 rounded-[2.5rem] border-2 border-transparent hover:border-blue-500 flex items-center gap-6 transition-all group">
-                  <div className="bg-white p-5 rounded-2xl shadow-sm group-hover:bg-blue-600 transition-colors"><Mail className="w-8 h-8 text-blue-600 group-hover:text-white" /></div>
-                  <div className="text-left">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Official Email</p>
-                    <p className="text-2xl font-black text-blue-600">fast85853@gmail.com</p>
+                <a href="mailto:fast85853@gmail.com" className="p-4 md:p-8 bg-gray-50 rounded-[1.5rem] md:rounded-[2.5rem] border-2 border-transparent hover:border-blue-500 flex flex-col sm:flex-row items-center gap-4 md:gap-6 transition-all group overflow-hidden">
+                  <div className="bg-white p-4 md:p-5 rounded-2xl shadow-sm group-hover:bg-blue-600 transition-colors shrink-0">
+                    <Mail className="w-6 h-6 md:w-8 md:h-8 text-blue-600 group-hover:text-white" />
+                  </div>
+                  <div className="text-center sm:text-left min-w-0">
+                    <p className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Official Email</p>
+                    <p className="text-lg md:text-2xl font-black text-blue-600 break-all">fast85853@gmail.com</p>
                   </div>
                 </a>
-                <div className="p-8 bg-gray-50 rounded-[2.5rem] flex items-center gap-6">
-                  <div className="bg-white p-5 rounded-2xl shadow-sm"><MapPin className="w-8 h-8 text-red-500" /></div>
-                  <div className="text-left">
-                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Office Location</p>
-                    <p className="text-xl font-black text-gray-800">Islamabad, Pakistan</p>
+                <div className="p-4 md:p-8 bg-gray-50 rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col sm:flex-row items-center gap-4 md:gap-6">
+                  <div className="bg-white p-4 md:p-5 rounded-2xl shadow-sm shrink-0">
+                    <MapPin className="w-6 h-6 md:w-8 md:h-8 text-red-500" />
+                  </div>
+                  <div className="text-center sm:text-left min-w-0">
+                    <p className="text-[10px] md:text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Office Location</p>
+                    <p className="text-lg md:text-xl font-black text-gray-800">Islamabad, Pakistan</p>
                   </div>
                 </div>
               </div>
